@@ -3,9 +3,15 @@ var SeasonForm = React.createClass({
   getInitialState: function(){
     return({startYear: "start year", endYear: "end year"})
   },
+  componentDidMount: function(){
+    RainfallStore.addChangeListener(this.onChange);
+  },
+  onChange: function(){
+    alert("on change happened in seasonForm");
+  },
   addSeason: function(event){
     event.preventDefault();
-    ApiUtil.createSeason({startYear: this.state.startYear, endYear: this.state.endYear});
+    // ApiUtil.createSeason({startYear: this.state.startYear, endYear: this.state.endYear});
   },
   render: function(){
     return (

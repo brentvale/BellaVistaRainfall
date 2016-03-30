@@ -7,7 +7,8 @@ var App = React.createClass({
       <div>
         <header><h1>Bella Vista Rainfall</h1></header>
         <RouteHandler/>
-        <SeasonForm/>
+        
+        <SeasonIndex/>
       </div>
     );
   }

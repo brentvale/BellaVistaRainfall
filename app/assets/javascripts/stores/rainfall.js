@@ -1,6 +1,10 @@
 (function(root){
   var CHANGE_EVENT = "change";
-  var _seasons = [];
+  var _rains = [];
+  
+  var resetRainfalls = function(obj){
+    _rains = obj['rains'];
+  }
   
   root.RainfallStore = $.extend({}, EventEmitter.prototype, {
     addChangeListener: function(callback){
@@ -9,6 +13,19 @@
     removeChangeListener: function(callback){
       
     },
+    all: function(){
+      return _rains.slice(0);
+    },
+    dispatcherID: AppDispatcher.register(function(payload){
+      
+      if(payload.actionType === RainfallConstants.RAINFALLS_RECEIVED){
+        resetRainfalls(payload.rainfalls);
+        RainfallStore.emitChange();
+      }
+    }),
+    emitChange: function (){
+      this.emit(CHANGE_EVENT);
+    }
   })
   
 })(this)
