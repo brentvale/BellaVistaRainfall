@@ -1,10 +1,15 @@
 (function(root){
   var CHANGE_EVENT = "change";
-  var _rains = [];
+  
+  var _rains = {};
   
   var resetRainfalls = function(obj){
+    debugger
+    // for()
     _rains = obj['rains'];
-  }
+  };
+  
+  
   
   root.RainfallStore = $.extend({}, EventEmitter.prototype, {
     addChangeListener: function(callback){

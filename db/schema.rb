@@ -11,18 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160330181903) do
+ActiveRecord::Schema.define(version: 20160330181554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "rains", force: :cascade do |t|
-    t.datetime "time_info"
-    t.integer  "season_id"
-    t.float    "amount_in_inches"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
-  end
 
   create_table "seasons", force: :cascade do |t|
     t.integer  "start_year"
