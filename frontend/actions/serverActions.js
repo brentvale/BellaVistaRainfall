@@ -1,8 +1,8 @@
 var Dispatcher = require('../dispatcher/dispatcher.js');
-var UserConstants = require('../constants/userConstants.js');
+var RainfallConstants = require('../constants/rainfallConstants.js');
 
 module.exports = {
-  receiveAll: function(rainfalls){
+  receiveAllRainData: function(rainfalls){
     Dispatcher.dispatch({
       actionType: RainfallConstants.RAINFALLS_RECEIVED,
       rainfalls: rainfalls

@@ -27980,8 +27980,11 @@
 /* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SeasonShow = __webpack_require__(249).SeasonShow;
+	var React = __webpack_require__(1);
 	var RainfallStore = __webpack_require__(230);
+	var ClientActions = __webpack_require__(250);
+	
+	var SeasonShow = __webpack_require__(249).SeasonShow;
 	
 	var SeasonIndex = React.createClass({
 	  displayName: 'SeasonIndex',
@@ -27990,10 +27993,10 @@
 	    return { rains: RainfallStore.all() };
 	  },
 	  componentDidMount: function () {
-	    RainfallStore.addChangeListener(this.onChange);
-	    ApiUtil.fetchAllRains();
+	    this.seasonListener = RainfallStore.addListener(this._onChange);
+	    ClientActions.fetchAllRainData();
 	  },
-	  onChange: function () {
+	  _onChange: function () {
 	    this.setState({ rains: RainfallStore.all() });
 	  },
 	  render: function () {
@@ -28019,8 +28022,10 @@
 
 /***/ },
 /* 249 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
+	var React = __webpack_require__(1);
+	
 	var SeasonShow = React.createClass({
 	  displayName: 'SeasonShow',
 	
@@ -28041,6 +28046,55 @@
 	
 	module.exports = {
 	  SeasonShow: SeasonShow
+	};
+
+/***/ },
+/* 250 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ApiUtil = __webpack_require__(251);
+	
+	module.exports = {
+	  fetchAllRainData: function () {
+	    ApiUtil.fetchAllRainData();
+	  }
+	};
+
+/***/ },
+/* 251 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ServerActions = __webpack_require__(252);
+	
+	module.exports = {
+	  fetchAllRainData: function () {
+	    $.ajax({
+	      type: "GET",
+	      url: "/api/rainfalls",
+	      success: function (resp) {
+	        ServerActions.receiveAllRainData(resp.rainfalls);
+	      },
+	      error: function (resp) {
+	        console.log("errored out in the ajax request");
+	      }
+	    });
+	  }
+	};
+
+/***/ },
+/* 252 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Dispatcher = __webpack_require__(244);
+	var RainfallConstants = __webpack_require__(247);
+	
+	module.exports = {
+	  receiveAllRainData: function (rainfalls) {
+	    Dispatcher.dispatch({
+	      actionType: RainfallConstants.RAINFALLS_RECEIVED,
+	      rainfalls: rainfalls
+	    });
+	  }
 	};
 
 /***/ }

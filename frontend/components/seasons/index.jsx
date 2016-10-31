@@ -1,5 +1,8 @@
-var SeasonShow = require('./show.jsx').SeasonShow;
+var React = require('react');
 var RainfallStore = require('../../stores/rainfall.js');
+var ClientActions = require('../../actions/clientActions.js');
+
+var SeasonShow = require('./show.jsx').SeasonShow;
 
 var SeasonIndex = React.createClass({
   getInitialState: function(){
@@ -8,10 +11,10 @@ var SeasonIndex = React.createClass({
     )
   },
   componentDidMount: function(){
-    RainfallStore.addChangeListener(this.onChange);
-    ApiUtil.fetchAllRains();
+    this.seasonListener = RainfallStore.addListener(this._onChange);
+    ClientActions.fetchAllRainData();
   },
-  onChange: function(){
+  _onChange: function(){
     this.setState({rains: RainfallStore.all()});
   },
   render: function(){

@@ -1,3 +1,5 @@
+var React = require('react');
+
 var SeasonShow = React.createClass({
   render: function(){
     return (
