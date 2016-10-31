@@ -1,3 +1,5 @@
+var React = require('react');
+
 var SeasonShow = React.createClass({
   render: function(){
     return (
@@ -8,4 +10,8 @@ var SeasonShow = React.createClass({
       </ul>
     )
   }
-})
+});
+
+module.exports = {
+  SeasonShow: SeasonShow
+}

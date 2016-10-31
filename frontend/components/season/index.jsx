@@ -1,3 +1,8 @@
+var React = require('react');
+
+var SeasonShow = require('./show.jsx').SeasonShow;
+var RainfallStore = require('../../stores/rainfall.js');
+
 var SeasonIndex = React.createClass({
   getInitialState: function(){
     return(
@@ -27,4 +32,8 @@ var SeasonIndex = React.createClass({
       
     )
   }
-})
+});
+
+module.exports = {
+  SeasonIndex: SeasonIndex
+}

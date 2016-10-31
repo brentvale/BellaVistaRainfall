@@ -6,8 +6,14 @@
 
 # Ignore bundler config.
 /.bundle
+node_modules
 
 # Ignore all logfiles and tempfiles.
 /log/*
 !/log/.keep
 /tmp
+/public
+
+#Ignore Debug Logs
+byebug_history
+npm-debug.log

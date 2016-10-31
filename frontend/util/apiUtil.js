@@ -1,5 +1,7 @@
-ApiUtil = {
-  fetchAllRains: function(){
+var ServerActions = require('../actions/serverActions.js');
+
+module.exports = {
+  fetchAllRainData: function(){
     $.ajax({
       type: "GET",
       url: "/api/rainfalls",
@@ -7,8 +9,7 @@ ApiUtil = {
         ApiActions.receiveAll(resp.rainfalls);
       }, 
       error: function(resp){
-        console.log("errored out in the ajax request");
-        
+        console.log("errored out in the ajax request"); 
       }
     });
   },
