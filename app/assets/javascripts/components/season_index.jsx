@@ -12,7 +12,18 @@ var SeasonIndex = React.createClass({
     this.setState({rains: RainfallStore.all()});
   },
   render: function(){
+    
+    var allRains = [];
+    for(var year in this.state.rains){
+      allRains.push({year: year, rains: this.state.rains[year]})
+    }
+    
     return(
+      <div>
+        {allRains.map(function(rainObj, idx){
+          return <SeasonShow key={idx} rains={rainObj.rains} year={rainObj.year}/>
+        })}
+      </div>
       
     )
   }

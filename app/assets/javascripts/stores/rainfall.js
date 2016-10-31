@@ -4,9 +4,8 @@
   var _rains = {};
   
   var resetRainfalls = function(obj){
-    debugger
-    // for()
-    _rains = obj['rains'];
+    _rains = obj;
+    return _rains;
   };
   
   
@@ -19,7 +18,7 @@
       
     },
     all: function(){
-      return _rains.slice(0);
+      return _rains;
     },
     dispatcherID: AppDispatcher.register(function(payload){
       

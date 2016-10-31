@@ -6,6 +6,7 @@ var App = React.createClass({
     return(
       <div>
         <header><h1>Bella Vista Rainfall</h1></header>
+        
         <RouteHandler/>
         
         <SeasonIndex/>
