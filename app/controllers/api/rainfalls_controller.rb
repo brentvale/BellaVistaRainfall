@@ -7,14 +7,23 @@ class Api::RainfallsController < ApplicationController
     render json: {rainfalls: rainfalls_hash}
   end
   
+  def create 
+    rainfall = Rainfall.new(rainfall_params)
+    if rainfall.save
+      render json: {rainfall: rainfall}
+    else
+      render json: {message: "errored out server side"}
+    end
+  end
+  
   private 
   
   def sort_by_season(rainfalls)
     hash = {}
     rainfalls.each do |rain|
       #include january - june in previous year's rainfall
-      if rain.rainfall_date.month < 7
-        season = rain.rainfall_date.year - 1
+      if rain.month < 7
+        season = rain.year - 1
       else
         season = rain.rainfall_date.year 
       end
@@ -26,5 +35,9 @@ class Api::RainfallsController < ApplicationController
     hash
   end
 
+  def rainfall_params
+    params[:rainfall][:hours] ||= []
+    params.require(:rainfall).permit(:month, :day, :year, :amount_in_inches, hours: [])
+  end
 
-end
+end  

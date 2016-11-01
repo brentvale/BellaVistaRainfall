@@ -17,10 +17,13 @@ ActiveRecord::Schema.define(version: 20161030184450) do
   enable_extension "plpgsql"
 
   create_table "rainfalls", force: :cascade do |t|
-    t.datetime "rainfall_date"
-    t.float    "amount_in_inches"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.float    "amount_in_inches",              null: false
+    t.integer  "month",                         null: false
+    t.integer  "day",                           null: false
+    t.integer  "year",                          null: false
+    t.string   "hours",            default: [],              array: true
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
   end
 
   create_table "seasons", force: :cascade do |t|

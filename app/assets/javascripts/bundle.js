@@ -28049,9 +28049,17 @@
 	    $.ajax({
 	      type: "POST",
 	      url: "/api/rainfalls",
-	      data: {},
+	      data: {
+	        rainfall: {
+	          month: formData.month,
+	          day: formData.day,
+	          year: formData.year,
+	          hours: formData.hours,
+	          amount_in_inches: formData.inches
+	        }
+	      },
 	      success: function (resp) {
-	        ServerActions.receiveCreatedRainfall(resp.rainfalls);
+	        ServerActions.receiveCreatedRainfall(resp.rainfall);
 	      },
 	      error: function (resp) {
 	        console.log("errored out in the ajax request");
@@ -46856,10 +46864,15 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	
-	var RainfallStep = __webpack_require__(503).RainfallStep;
-	var StepData = __webpack_require__(504);
 	var ClientActions = __webpack_require__(246);
+	
+	var IntroStep = __webpack_require__(503).IntroStep;
+	var MonthStep = __webpack_require__(504).MonthStep;
+	var DayStep = __webpack_require__(505).DayStep;
+	var YearStep = __webpack_require__(506).YearStep;
+	var HourStep = __webpack_require__(507).HourStep;
+	var InchesStep = __webpack_require__(508).InchesStep;
+	var InfoReviewStep = __webpack_require__(509).InfoReviewStep;
 	
 	var RainfallForm = React.createClass({
 	  displayName: 'RainfallForm',
@@ -46870,84 +46883,128 @@
 	      month: "",
 	      day: "",
 	      year: "",
-	      inches: ""
+	      inches: "",
+	      hours: []
 	    };
 	  },
-	  handleFormNavigation: function (id) {
+	  componentFromCurrentStep: function () {
+	    var boostrapSizeClasses = "col-xs-6 col-sm-3 col-md-2";
+	
 	    switch (this.state.currentStep) {
-	      //today or enter date
 	      case 1:
-	        if (id === "yes") {
+	        return React.createElement(IntroStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses });
+	      case 2:
+	        return React.createElement(MonthStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses });
+	      case 3:
+	        return React.createElement(DayStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses,
+	          month: this.state.month });
+	      case 4:
+	        return React.createElement(YearStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses });
+	      case 5:
+	        return React.createElement(HourStep, { handleNextStep: this.handleNextStep });
+	      case 6:
+	        return React.createElement(InchesStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses });
+	      case 7:
+	        return React.createElement(InfoReviewStep, { handleNextStep: this.handleNextStep,
+	          bootstrapClassesSelectItem: boostrapSizeClasses,
+	          month: this.state.month,
+	          day: this.state.day,
+	          year: this.state.year,
+	          inches: this.state.inches,
+	          hours: this.state.hours });
+	    }
+	  },
+	  handleNextStep: function (e) {
+	    var that = this;
+	    var selectionTimeBeforeNavigate = 350;
+	
+	    //make selected elemented appear selected briefly
+	    if (e.target) {
+	      var className = e.target.className;
+	      e.target.className = className + " selected";
+	    }
+	
+	    switch (this.state.currentStep) {
+	      case 1:
+	        if (e.target.id === "yes") {
 	          var date = new Date();
-	          var month = date.getMonth() + 1;
-	          var day = date.getDay() + 1;
-	          var year = date.getYear();
-	          this.setState({ currentStep: 5, month: month, day: day, year: year });
-	        } else if (id === "no") {
-	          this.setState({ currentStep: 2 });
+	          setTimeout(function () {
+	            that.setState({ currentStep: 5,
+	              month: date.getMonth() + 1,
+	              day: date.getDate(),
+	              year: date.getYear() + 1900 });
+	          }, selectionTimeBeforeNavigate);
+	        } else {
+	          setTimeout(function () {
+	            that.setState({ currentStep: 2 });
+	          }, selectionTimeBeforeNavigate);
 	        }
 	        break;
 	      case 2:
-	        this.setState({ month: id, currentStep: 3 });
+	        var month = e.target.id || e.target.parentElement.id;
+	        setTimeout(function () {
+	          that.setState({ currentStep: 3, month: parseInt(month) });
+	        }, selectionTimeBeforeNavigate);
 	        break;
 	      case 3:
-	        this.setState({ day: id, currentStep: 4 });
+	        var day = e.target.id || e.target.parentElement.id;
+	        setTimeout(function () {
+	          that.setState({ currentStep: 4, day: parseInt(day) });
+	        }, selectionTimeBeforeNavigate);
 	        break;
 	      case 4:
-	        this.setState({ year: id, currentStep: 5 });
+	        var year = e.target.id || e.target.parentElement.id;
+	        setTimeout(function () {
+	          that.setState({ currentStep: 5, year: parseInt(year) });
+	        }, selectionTimeBeforeNavigate);
 	        break;
 	      case 5:
-	        this.setState({ inches: id, currentStep: 6 });
+	        setTimeout(function () {
+	          that.setState({ currentStep: 6, hours: e });
+	        }, selectionTimeBeforeNavigate);
 	        break;
 	      case 6:
-	        if (id === "yes") {
-	          ClientActions.createRain({
-	            month: this.state.month,
-	            day: this.state.day,
-	            year: this.state.year,
-	            inches: this.state.inches
-	          });
-	        } else if (id === "no") {
-	          this.setState({
-	            currentStep: 1,
-	            month: "",
-	            day: "",
-	            year: "",
-	            inches: ""
-	          });
+	        var floatInches = parseFloat(e);
+	        setTimeout(function () {
+	          that.setState({ currentStep: 7, inches: floatInches });
+	        }, selectionTimeBeforeNavigate);
+	        break;
+	      case 7:
+	        if (e.target.id === "yes") {
+	          setTimeout(function () {
+	            ClientActions.createRain({
+	              month: that.state.month,
+	              day: that.state.day,
+	              year: that.state.year,
+	              inches: that.state.inches,
+	              hours: that.state.hours
+	            });
+	          }, selectionTimeBeforeNavigate);
+	        } else if (e.target.id === "no") {
+	          setTimeout(function () {
+	            that.setState({ currentStep: 1,
+	              month: "",
+	              day: "",
+	              year: "",
+	              inches: "",
+	              hours: [] });
+	          }, selectionTimeBeforeNavigate);
 	        }
+	
 	        break;
 	    }
 	  },
 	  render: function () {
-	    var currentStepInfo = StepData[this.state.currentStep];
-	    //when on final step of proces, pass info to display
-	    //if adding more steps to the form (hours of storm) need to change review state
-	    var reviewState = this.state.currentStep === 6 ? true : false;
-	    var rainfallStep;
-	    if (reviewState) {
-	      var infoObj = { month: this.state.month,
-	        day: this.state.day,
-	        year: this.state.year,
-	        inches: this.state.inches };
-	      rainfallStep = React.createElement(RainfallStep, { handleFormNavigation: this.handleFormNavigation,
-	        stepInfo: currentStepInfo,
-	        rainfallInfo: infoObj,
-	        requiredFieldCount: currentStepInfo.length });
-	    } else {
-	      rainfallStep = React.createElement(RainfallStep, { handleFormNavigation: this.handleFormNavigation,
-	        stepInfo: currentStepInfo,
-	        requiredFieldCount: currentStepInfo.length });
-	    }
+	    var currentStepComponent = this.componentFromCurrentStep();
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement(
-	        'h3',
-	        null,
-	        'Rainfall Form'
-	      ),
-	      rainfallStep
+	      currentStepComponent
 	    );
 	  }
 	});
@@ -46961,113 +47018,185 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var RainfallInfoReview = __webpack_require__(505).RainfallInfoReview;
-	var StepButton = __webpack_require__(506).StepButton;
 	
-	var RainfallStep = React.createClass({
-	  displayName: 'RainfallStep',
+	var IntroStep = React.createClass({
+	  displayName: "IntroStep",
 	
-	  getInitialState: function () {
-	    return { field: "", requiredFieldCount: 0, selectedIds: [] };
-	  },
-	  addToStateAndSubmit: function (e) {
-	    var newField;
-	    if (this.state.field === "") {
-	      newField = this.state.field + e.target.id;
-	    } else if (this.state.field.length > 0) {
-	      newField = this.state.field + "." + e.target.id.slice(-1);
-	    }
-	
-	    var newFieldCount = this.state.requiredFieldCount + 1;
-	    var idsArray = this.state.selectedIds;
-	    idsArray.push(e.target.id);
-	
-	    this.setState({ field: newField, requiredFieldCount: newFieldCount, selectedIds: idsArray });
-	  },
-	  componentWillReceiveProps: function (nextProps) {
-	    this.setState({ field: "", requiredFieldCount: 0, selectedIds: [] });
-	  },
-	  nextStep: function () {
-	    this.props.handleFormNavigation(this.state.field);
-	  },
 	  render: function () {
-	    var that = this;
+	    var bootstrapInnerClasses = "box-with-shadow center-block wide-width";
 	
-	    var rainfallInfoToReview;
-	    if (this.props.rainfallInfo) {
-	      rainfallInfoToReview = React.createElement(RainfallInfoReview, { info: this.props.rainfallInfo });
-	    } else {
-	      rainfallInfoToReview = React.createElement('div', { style: { display: "none" } });
-	    }
-	
-	    var nextButton;
-	    if (this.props.requiredFieldCount === this.state.requiredFieldCount) {
-	      nextButton = React.createElement(
-	        'div',
-	        { className: 'form-button button-ready', onClick: this.nextStep },
-	        'Next'
-	      );
-	    } else {
-	      nextButton = React.createElement(
-	        'div',
-	        { className: 'form-button button-not-ready' },
-	        'Next'
-	      );
-	    }
-	
-	    console.log(this.state.selectedIds);
 	    return React.createElement(
-	      'div',
-	      null,
-	      this.props.stepInfo.map(function (stepInfo, idx) {
-	        return React.createElement(
-	          'div',
-	          { key: idx },
-	          stepInfo['title'],
-	          stepInfo['options'].map(function (option, jdx) {
-	
-	            return React.createElement(StepButton, { key: jdx,
-	              id: option['id'],
-	              whenClick: that.addToStateAndSubmit,
-	              selectedIds: that.state.selectedIds,
-	              text: option['text'] });
-	          })
-	        );
-	      }),
-	      rainfallInfoToReview,
-	      nextButton
+	      "div",
+	      { className: "col-xs-12" },
+	      React.createElement(
+	        "h3",
+	        null,
+	        "Did the Rain Happen Today?"
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses,
+	            id: "no",
+	            onClick: this.props.handleNextStep },
+	          "No"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses,
+	            id: "yes",
+	            onClick: this.props.handleNextStep },
+	          "Yes"
+	        )
+	      )
 	    );
 	  }
 	});
 	
 	module.exports = {
-	  RainfallStep: RainfallStep
+	  IntroStep: IntroStep
 	};
 
 /***/ },
 /* 504 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
+	var React = __webpack_require__(1);
+	
+	var MonthStep = React.createClass({
+	  displayName: "MonthStep",
+	
+	  render: function () {
+	    var bootstrapInnerClasses = "box-with-shadow center-block wide-width";
+	
+	    return React.createElement(
+	      "div",
+	      { className: "col-xs-12" },
+	      React.createElement(
+	        "h3",
+	        null,
+	        "Select Month"
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "1" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "January"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "February"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "3" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "March"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "4" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "April"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "5" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "May"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "6" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "June"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "7" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "July"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "8" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "August"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "9" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "September"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "10" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "October"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "11" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "November"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "12" },
+	        React.createElement(
+	          "div",
+	          { className: bootstrapInnerClasses },
+	          "December"
+	        )
+	      )
+	    );
+	  }
+	});
+	
 	module.exports = {
-	  1: [{ "title": "Did the rain happen today?",
-	    "options": [{ "text": "Yes (use today's date)", "id": "yes" }, { "text": "No (enter date)", "id": "no" }]
-	  }],
-	  2: [{ "title": "Select Month",
-	    "options": [{ "text": "January", "id": 1 }, { "text": "February", "id": 2 }, { "text": "March", "id": 3 }, { "text": "April", "id": 4 }, { "text": "May", "id": 5 }, { "text": "June", "id": 6 }, { "text": "July", "id": 7 }, { "text": "August", "id": 8 }, { "text": "September", "id": 9 }, { "text": "October", "id": 10 }, { "text": "Novermber", "id": 11 }, { "text": "December", "id": 12 }]
-	  }],
-	  3: [{ "title": "Select Day",
-	    "options": [{ "text": "1", "id": 1 }, { "text": "2", "id": 2 }, { "text": "3", "id": 3 }, { "text": "4", "id": 4 }, { "text": "5", "id": 5 }, { "text": "6", "id": 6 }, { "text": "7", "id": 7 }, { "text": "8", "id": 8 }, { "text": "9", "id": 9 }, { "text": "10", "id": 10 }, { "text": "11", "id": 11 }, { "text": "12", "id": 12 }, { "text": "13", "id": 13 }, { "text": "14", "id": 14 }, { "text": "15", "id": 15 }, { "text": "16", "id": 16 }, { "text": "17", "id": 17 }, { "text": "18", "id": 18 }, { "text": "19", "id": 19 }, { "text": "20", "id": 20 }, { "text": "21", "id": 21 }, { "text": "22", "id": 22 }, { "text": "23", "id": 23 }, { "text": "24", "id": 24 }, { "text": "25", "id": 25 }, { "text": "26", "id": 26 }, { "text": "27", "id": 27 }, { "text": "28", "id": 28 }, { "text": "29", "id": 29 }, { "text": "30", "id": 30 }, { "text": "31", "id": 31 }] }],
-	  4: [{ "title": "Select Year",
-	    "options": [{ "text": "2009", "id": 2009 }, { "text": "2010", "id": 2010 }, { "text": "2011", "id": 2011 }, { "text": "2012", "id": 2012 }, { "text": "2013", "id": 2013 }, { "text": "2014", "id": 2014 }, { "text": "2015", "id": 2015 }, { "text": "2016", "id": 2016 }, { "text": "2017", "id": 2017 }]
-	  }],
-	  5: [{ "title": "Inches",
-	    "options": [{ "text": "0", "id": "0" }, { "text": "1", "id": "1" }, { "text": "2", "id": "2" }, { "text": "3", "id": "3" }, { "text": "4", "id": "4" }, { "text": "5", "id": "5" }]
-	  }, { "title": "Tenths",
-	    "options": [{ "text": "0", "id": "pt0" }, { "text": "1", "id": "pt1" }, { "text": "2", "id": "pt2" }, { "text": "3", "id": "pt3" }, { "text": "4", "id": "pt4" }, { "text": "5", "id": "pt5" }, { "text": "6", "id": "pt6" }, { "text": "7", "id": "pt7" }, { "text": "8", "id": "pt8" }, { "text": "9", "id": "pt9" }]
-	  }],
-	  6: [{ "title": "Does everything look correct?",
-	    "options": [{ "text": "yes", "id": "yes" }, { "text": "no", "id": "no" }]
-	  }]
+	  MonthStep: MonthStep
 	};
 
 /***/ },
@@ -47076,26 +47205,59 @@
 
 	var React = __webpack_require__(1);
 	
-	var RainfallInfoReview = React.createClass({
-	  displayName: 'RainfallInfoReview',
+	var MONTH_TO_NUMBER_OF_DAYS = {
+	  1: 31,
+	  2: 28,
+	  3: 31,
+	  4: 30,
+	  5: 31,
+	  6: 30,
+	  7: 31,
+	  8: 31,
+	  9: 30,
+	  10: 31,
+	  11: 30,
+	  12: 31
+	};
 	
+	var DayStep = React.createClass({
+	  displayName: "DayStep",
+	
+	  numberOfDaysInMonth: function (month) {
+	    return MONTH_TO_NUMBER_OF_DAYS[month];
+	  },
 	  render: function () {
+	    var that = this;
+	    var totalDays = this.numberOfDaysInMonth(this.props.month);
+	    var daysArray = [];
+	    for (var i = 1; i < totalDays + 1; i++) {
+	      daysArray.push(i);
+	    }
+	    var bootstrapClasses = "col-xs-3 col-sm-2 col-md-1";
+	
 	    return React.createElement(
-	      'div',
-	      null,
-	      this.props.info['month'],
-	      ' ',
-	      this.props.info['day'],
-	      ', ',
-	      this.props.info['year'],
-	      React.createElement('br', null),
-	      this.props.info['inches']
+	      "div",
+	      { className: "col-xs-12" },
+	      daysArray.map(function (dayNum, idx) {
+	        return React.createElement(
+	          "div",
+	          { key: idx,
+	            className: bootstrapClasses,
+	            onClick: that.props.handleNextStep,
+	            id: dayNum },
+	          React.createElement(
+	            "div",
+	            { className: "box-with-shadow center-block sm-width" },
+	            dayNum
+	          )
+	        );
+	      })
 	    );
 	  }
 	});
 	
 	module.exports = {
-	  RainfallInfoReview: RainfallInfoReview
+	  DayStep: DayStep
 	};
 
 /***/ },
@@ -47104,26 +47266,396 @@
 
 	var React = __webpack_require__(1);
 	
-	var StepButton = React.createClass({
-	  displayName: "StepButton",
+	var YearStep = React.createClass({
+	  displayName: "YearStep",
 	
 	  render: function () {
-	    var klass = "box-with-shadow";
-	    if (this.props.selectedIds.includes(this.props.id)) {
-	      klass += " selected";
-	    }
+	    var innerClasses = "box-with-shadow center-block med-width";
+	
 	    return React.createElement(
 	      "div",
-	      { id: this.props.id,
-	        onClick: this.props.whenClick,
-	        className: klass },
-	      this.props.text
+	      { className: "col-xs-12" },
+	      React.createElement(
+	        "h3",
+	        null,
+	        "Select Year"
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2017" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2017"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2016" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2016"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2015" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2015"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2014" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2014"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2013" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2013"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2012" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2012"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2011" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2011"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2010" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2010"
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: this.props.bootstrapClassesSelectItem, onClick: this.props.handleNextStep, id: "2009" },
+	        React.createElement(
+	          "div",
+	          { className: innerClasses },
+	          "2009"
+	        )
+	      )
 	    );
 	  }
 	});
 	
 	module.exports = {
-	  StepButton: StepButton
+	  YearStep: YearStep
+	};
+
+/***/ },
+/* 507 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var HourStep = React.createClass({
+	  displayName: "HourStep",
+	
+	  getInitialState: function () {
+	    return { selectedHours: [] };
+	  },
+	  updateHours: function (e) {
+	    var newHour = e.target.id || e.target.parentElement.id;
+	    var newSelectedHoursArray;
+	    if (this.state.selectedHours.includes(newHour)) {
+	      //remove hour
+	      newSelectedHoursArray = [];
+	      for (var i = 0; i < this.state.selectedHours.length; i++) {
+	        if (this.state.selectedHours[i] !== newHour) {
+	          newSelectedHoursArray.push(this.state.selectedHours[i]);
+	        }
+	      }
+	    } else {
+	      //add hour
+	      newSelectedHoursArray = this.state.selectedHours;
+	      newSelectedHoursArray.push(newHour);
+	    }
+	    this.setState({ selectedHours: newSelectedHoursArray });
+	  },
+	  readyForNextStep: function (e) {
+	    var klass = e.target.className;
+	    e.target.className = klass + " selected";
+	    this.props.handleNextStep(this.state.selectedHours);
+	  },
+	  render: function () {
+	    var that = this;
+	    var innerClasses = "box-with-shadow center-block med-width";
+	    var innerClassesSelected = "box-with-shadow center-block med-width selected";
+	
+	    var bootstrapClasses = "col-xs-4 col-sm-3 col-md-2 col-lg-1";
+	    var times = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+	    return React.createElement(
+	      "div",
+	      { className: "col-xs-12" },
+	      React.createElement(
+	        "div",
+	        { className: "col-xs-12" },
+	        React.createElement(
+	          "h3",
+	          null,
+	          "Select Time(s)"
+	        ),
+	        times.map(function (time, idx) {
+	          return React.createElement(
+	            "div",
+	            { key: idx, className: bootstrapClasses, onClick: that.updateHours, id: time + "-am" },
+	            React.createElement(
+	              "div",
+	              { className: that.state.selectedHours.includes(time + "-am") ? innerClassesSelected : innerClasses },
+	              time,
+	              ":00 AM"
+	            )
+	          );
+	        }),
+	        times.map(function (time, idx) {
+	          return React.createElement(
+	            "div",
+	            { key: idx, className: bootstrapClasses, onClick: that.updateHours, id: time + "-pm" },
+	            React.createElement(
+	              "div",
+	              { className: that.state.selectedHours.includes(time + "-pm") ? innerClassesSelected : innerClasses },
+	              time,
+	              ":00 PM"
+	            )
+	          );
+	        })
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: "col-xs-12" },
+	        React.createElement(
+	          "div",
+	          { className: "box-with-shadow center-block wide-width", onClick: this.readyForNextStep },
+	          "NEXT"
+	        )
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  HourStep: HourStep
+	};
+
+/***/ },
+/* 508 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var InchesStep = React.createClass({
+	  displayName: "InchesStep",
+	
+	  getInitialState: function () {
+	    return { inches: "", tenths: "" };
+	  },
+	  handleButtonPress: function (e) {
+	    var selectedId = e.target.id || e.target.parentElement.id;
+	
+	    if (selectedId.slice(0, 2) === "pt") {
+	      //id corresponds to tenths value
+	      if (this.state.inches !== "") {
+	        var stringTotalInches = this.state.inches + "." + selectedId.slice(2);
+	        var klass = e.target.className;
+	        e.target.className = klass + " selected";
+	        this.props.handleNextStep(stringTotalInches);
+	      } else {
+	        this.setState({ tenths: selectedId.slice(0, 2) });
+	      }
+	    } else {
+	      //id corresponds to inches value
+	      if (this.state.tenths !== "") {
+	        var stringTotalInches = selectedId + "." + this.state.tenths;
+	        var klass = e.target.className;
+	        e.target.className = klass + " selected";
+	        this.props.handleNextStep(stringTotalInches);
+	      } else {
+	        this.setState({ inches: selectedId });
+	      }
+	    }
+	  },
+	  render: function () {
+	    var that = this;
+	
+	    var innerClasses = "box-with-shadow center-block sm-width";
+	    var innerClassesSelected = "box-with-shadow center-block sm-width selected";
+	
+	    var bootstrapClasses = "col-xs-3 col-sm-2 col-md-1";
+	
+	    var inches = ["0", "1", "2", "3", "4"];
+	    var tenths = [["0", "pt0"], ["1", "pt1"], ["2", "pt2"], ["3", "pt3"], ["4", "pt4"], ["5", "pt5"], ["6", "pt6"], ["7", "pt7"], ["8", "pt8"], ["9", "pt9"]];
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement(
+	        "div",
+	        { className: "col-xs-12" },
+	        React.createElement(
+	          "h3",
+	          null,
+	          "Select Inches"
+	        ),
+	        inches.map(function (num, idx) {
+	          return React.createElement(
+	            "div",
+	            { key: idx, className: bootstrapClasses, onClick: that.handleButtonPress, id: num.toString() },
+	            React.createElement(
+	              "div",
+	              { className: that.state.inches === num ? innerClassesSelected : innerClasses },
+	              num
+	            )
+	          );
+	        })
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: "col-xs-12" },
+	        React.createElement(
+	          "h3",
+	          null,
+	          "Select Tenths of Inches"
+	        ),
+	        tenths.map(function (num, idx) {
+	          return React.createElement(
+	            "div",
+	            { key: idx, className: bootstrapClasses, onClick: that.handleButtonPress, id: num[1] },
+	            React.createElement(
+	              "div",
+	              { className: that.state.inches === num ? innerClassesSelected : innerClasses },
+	              "0.",
+	              num[0]
+	            )
+	          );
+	        })
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  InchesStep: InchesStep
+	};
+
+/***/ },
+/* 509 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var MONTH_NUMBER_TO_WORD = {
+	  1: "January",
+	  2: "February",
+	  3: "March",
+	  4: "April",
+	  5: "May",
+	  6: "June",
+	  7: "July",
+	  8: "August",
+	  9: "September",
+	  10: "October",
+	  11: "November",
+	  12: "December"
+	};
+	
+	var InfoReviewStep = React.createClass({
+	  displayName: "InfoReviewStep",
+	
+	  numberToMonthName: function () {
+	    return MONTH_NUMBER_TO_WORD[this.props.month];
+	  },
+	  render: function () {
+	    var monthDisplay = this.numberToMonthName();
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement(
+	        "h4",
+	        null,
+	        monthDisplay,
+	        " ",
+	        this.props.day,
+	        ", ",
+	        this.props.year
+	      ),
+	      this.props.hours.map(function (hour, idx) {
+	        return React.createElement(
+	          "span",
+	          { className: "hour-display", key: idx },
+	          hour
+	        );
+	      }),
+	      React.createElement("br", null),
+	      React.createElement(
+	        "span",
+	        { className: "hour-display" },
+	        "Inches:"
+	      ),
+	      " ",
+	      React.createElement(
+	        "span",
+	        null,
+	        this.props.inches
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: "col-xs-12" },
+	        React.createElement(
+	          "h3",
+	          null,
+	          "Is Everything Correct?"
+	        ),
+	        React.createElement(
+	          "div",
+	          { className: "col-xs-6" },
+	          React.createElement(
+	            "div",
+	            { className: "box-with-shadow center-block wide-width", id: "no", onClick: this.props.handleNextStep },
+	            "No"
+	          )
+	        ),
+	        React.createElement(
+	          "div",
+	          { className: "col-xs-6" },
+	          React.createElement(
+	            "div",
+	            { className: "box-with-shadow center-block wide-width", id: "yes", onClick: this.props.handleNextStep },
+	            "Yes"
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  InfoReviewStep: InfoReviewStep
 	};
 
 /***/ }
