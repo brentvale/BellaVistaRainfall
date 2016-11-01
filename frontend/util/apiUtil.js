@@ -13,7 +13,7 @@ module.exports = {
       }
     });
   },
-  createRain: function(formData){
+  createRain: function(formData, callback){
     $.ajax({
       type: "POST",
       url: "/api/rainfalls",
@@ -28,6 +28,7 @@ module.exports = {
       },
       success: function(resp){
         ServerActions.receiveCreatedRainfall(resp.rainfall);
+        callback && callback();
       }, 
       error: function(resp){
         console.log("errored out in the ajax request"); 

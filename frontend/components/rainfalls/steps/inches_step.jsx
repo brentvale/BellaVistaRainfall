@@ -15,7 +15,7 @@ var InchesStep = React.createClass({
         e.target.className = klass + " selected";
         this.props.handleNextStep(stringTotalInches);
       }else {
-        this.setState({tenths: selectedId.slice(0,2)});
+        this.setState({tenths: selectedId.slice(2)});
       }
     } else {
       //id corresponds to inches value
@@ -58,7 +58,7 @@ var InchesStep = React.createClass({
           <h3>Select Tenths of Inches</h3>
           {tenths.map(function(num, idx){
             return  <div key={idx} className={bootstrapClasses} onClick={that.handleButtonPress} id={num[1]}>
-                      <div className={(that.state.inches === num) ? innerClassesSelected : innerClasses}>
+                      <div className={(that.state.tenths === num[0]) ? innerClassesSelected : innerClasses}>
                         0.{num[0]}
                       </div>
                     </div>

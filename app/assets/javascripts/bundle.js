@@ -26365,6 +26365,9 @@
 	    this.seasonListener = RainfallStore.addListener(this._onChange);
 	    ClientActions.fetchAllRainData();
 	  },
+	  componentWillUnmount: function () {
+	    this.seasonListener.remove();
+	  },
 	  _onChange: function () {
 	    this.setState({ rains: RainfallStore.all() });
 	  },
@@ -26413,6 +26416,7 @@
 	};
 	var addRainfall = function (rainfall) {
 	  debugger;
+	  return _rains[rainfall.year].push(rainfall);
 	};
 	
 	RainfallStore.all = function () {
@@ -28021,8 +28025,8 @@
 	  fetchAllRainData: function () {
 	    ApiUtil.fetchAllRainData();
 	  },
-	  createRain: function (formData) {
-	    ApiUtil.createRain(formData);
+	  createRain: function (formData, callback) {
+	    ApiUtil.createRain(formData, callback);
 	  }
 	};
 
@@ -28045,7 +28049,7 @@
 	      }
 	    });
 	  },
-	  createRain: function (formData) {
+	  createRain: function (formData, callback) {
 	    $.ajax({
 	      type: "POST",
 	      url: "/api/rainfalls",
@@ -28060,6 +28064,7 @@
 	      },
 	      success: function (resp) {
 	        ServerActions.receiveCreatedRainfall(resp.rainfall);
+	        callback && callback();
 	      },
 	      error: function (resp) {
 	        console.log("errored out in the ajax request");
@@ -46865,6 +46870,7 @@
 
 	var React = __webpack_require__(1);
 	var ClientActions = __webpack_require__(246);
+	var HashHistory = __webpack_require__(172).hashHistory;
 	
 	var IntroStep = __webpack_require__(503).IntroStep;
 	var MonthStep = __webpack_require__(504).MonthStep;
@@ -46983,7 +46989,7 @@
 	              year: that.state.year,
 	              inches: that.state.inches,
 	              hours: that.state.hours
-	            });
+	            }, that.navigateToIndex);
 	          }, selectionTimeBeforeNavigate);
 	        } else if (e.target.id === "no") {
 	          setTimeout(function () {
@@ -46998,6 +47004,10 @@
 	
 	        break;
 	    }
+	  },
+	  navigateToIndex: function () {
+	    console.log("navigateToIndex function in form.jsx");
+	    HashHistory.push("/");
 	  },
 	  render: function () {
 	    var currentStepComponent = this.componentFromCurrentStep();
@@ -47487,7 +47497,7 @@
 	        e.target.className = klass + " selected";
 	        this.props.handleNextStep(stringTotalInches);
 	      } else {
-	        this.setState({ tenths: selectedId.slice(0, 2) });
+	        this.setState({ tenths: selectedId.slice(2) });
 	      }
 	    } else {
 	      //id corresponds to inches value
@@ -47548,7 +47558,7 @@
 	            { key: idx, className: bootstrapClasses, onClick: that.handleButtonPress, id: num[1] },
 	            React.createElement(
 	              "div",
-	              { className: that.state.inches === num ? innerClassesSelected : innerClasses },
+	              { className: that.state.tenths === num[0] ? innerClassesSelected : innerClasses },
 	              "0.",
 	              num[0]
 	            )

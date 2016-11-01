@@ -1,5 +1,6 @@
 var React = require('react');
 var ClientActions = require('../../actions/clientActions.js');
+var HashHistory = require('react-router').hashHistory;
 
 var IntroStep = require('./steps/intro_step.jsx').IntroStep;
 var MonthStep = require('./steps/month_step.jsx').MonthStep;
@@ -119,7 +120,8 @@ var RainfallForm = React.createClass({
               year: that.state.year,
               inches: that.state.inches,
               hours: that.state.hours
-            }
+            },
+            that.navigateToIndex
           );
         }, selectionTimeBeforeNavigate);
       } else if(e.target.id === "no"){
@@ -135,6 +137,10 @@ var RainfallForm = React.createClass({
       
       break;
     }
+  },
+  navigateToIndex: function(){
+    console.log("navigateToIndex function in form.jsx");
+    HashHistory.push("/");
   },
   render: function(){
     var currentStepComponent = this.componentFromCurrentStep();

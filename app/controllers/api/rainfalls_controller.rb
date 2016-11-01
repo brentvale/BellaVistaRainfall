@@ -25,7 +25,7 @@ class Api::RainfallsController < ApplicationController
       if rain.month < 7
         season = rain.year - 1
       else
-        season = rain.rainfall_date.year 
+        season = rain.year 
       end
       if hash[season].nil?
         hash[season] = []

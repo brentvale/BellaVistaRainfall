@@ -15,6 +15,9 @@ var App = React.createClass({
     this.seasonListener = RainfallStore.addListener(this._onChange);
     ClientActions.fetchAllRainData();
   },
+  componentWillUnmount: function(){
+    this.seasonListener.remove();
+  },
   _onChange: function(){
     this.setState({rains: RainfallStore.all()});
   },

@@ -4,7 +4,7 @@ module.exports = {
   fetchAllRainData: function(){
     ApiUtil.fetchAllRainData();
   },
-  createRain: function(formData){
-    ApiUtil.createRain(formData);
+  createRain: function(formData, callback){
+    ApiUtil.createRain(formData, callback);
   }
 }
