@@ -7,5 +7,11 @@ module.exports = {
       actionType: RainfallConstants.RAINFALLS_RECEIVED,
       rainfalls: rainfalls
     });
+  },
+  receiveCreatedRainfall: function(rainfall){
+    Dispatcher.dispatch({
+      actionType: RainfallConstants.RAINFALL_RECEIVED,
+      rainfall: rainfall
+    });
   }
 }

@@ -9,6 +9,9 @@ var resetRainfalls = function(obj){
   _rains = obj;
   return _rains;
 };
+var addRainfall = function(rainfall){
+  debugger
+};
 
 RainfallStore.all = function(){
   return _rains;
@@ -18,6 +21,10 @@ RainfallStore.__onDispatch = function (payload) {
   switch(payload.actionType) {
     case RainfallConstants.RAINFALLS_RECEIVED:
       resetRainfalls(payload.rainfalls);
+      RainfallStore.__emitChange();
+      break;
+    case RainfallConstants.RAINFALL_RECEIVED:
+      addRainfall(payload.rainfall);
       RainfallStore.__emitChange();
       break;
   }
