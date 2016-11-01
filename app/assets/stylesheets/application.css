@@ -13,33 +13,44 @@
  *= require_tree .
  *= require_self
  */
+h3{
+  margin:20px;
+}
 #container {
   margin-top:80px;
 }
-.form-button{
-  border: 4px solid gray;
-  font-size: 1.5em;
-  height: 60px;
-  line-height: 50px;
-  text-align:center;
-  width:150px;
-}
-.button-not-ready{
-  border: 4px solid gray;
-  color: gray;
-}
-.button-ready{
-  border: 4px solid green;
-  color: green;
-}
 .box-with-shadow{
   background: #f9f9f9;
+  border: 5px solid #f9f9f9;
   box-shadow: 0 3px 10px rgba(0,0,0,.23);
-  padding:15px;
-  margin: 0px 0px 20px 0px;
-  width: 150px;
+  display:inline-block;
+  font-size: 1.3em;
+  margin: 10px 0px 10px 0px;
+  text-align:center;
+}
+.box-with-shadow:hover{
+  cursor:hand;
+  cursor:pointer;
 }
 .box-with-shadow.selected{
-  border: 3px solid green;
-  box-shadow: 0 1px 4px rgba(0,0,0,.24);
+  border: 5px solid green;
+  box-shadow: 0 1px 4px rgba(0,0,0,.26);
+  color: green;
+  font-weight:bold;
+}
+.hour-display{
+  font-size:1.2em;
+  margin: 0px 10px 0px 10px;
+}
+.med-width{
+  padding:20px;
+  width: 100px;
+}
+.sm-width{
+  padding:10px;
+  width: 50px;
+}
+.wide-width{
+  padding:25px;
+  width: 150px;
 }

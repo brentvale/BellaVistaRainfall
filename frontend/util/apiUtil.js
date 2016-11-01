@@ -13,15 +13,22 @@ module.exports = {
       }
     });
   },
-  createRain: function(formData){
+  createRain: function(formData, callback){
     $.ajax({
       type: "POST",
       url: "/api/rainfalls",
       data: {
-        
+        rainfall: {
+          month: formData.month,
+          day: formData.day,
+          year: formData.year,
+          hours: formData.hours,
+          amount_in_inches: formData.inches
+        }
       },
       success: function(resp){
-        ServerActions.receiveCreatedRainfall(resp.rainfalls);
+        ServerActions.receiveCreatedRainfall(resp.rainfall);
+        callback && callback();
       }, 
       error: function(resp){
         console.log("errored out in the ajax request"); 

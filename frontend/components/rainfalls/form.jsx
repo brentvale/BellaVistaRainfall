@@ -1,8 +1,15 @@
 var React = require('react');
-
-var RainfallStep = require('./step.jsx').RainfallStep;
-var StepData = require('../../constants/stepData.js');
 var ClientActions = require('../../actions/clientActions.js');
+var HashHistory = require('react-router').hashHistory;
+
+var IntroStep = require('./steps/intro_step.jsx').IntroStep;
+var MonthStep = require('./steps/month_step.jsx').MonthStep;
+var DayStep = require('./steps/day_step.jsx').DayStep;
+var YearStep = require('./steps/year_step.jsx').YearStep;
+var HourStep = require('./steps/hour_step.jsx').HourStep;
+var InchesStep = require('./steps/inches_step.jsx').InchesStep;
+var InfoReviewStep = require('./steps/info_review_step.jsx').InfoReviewStep;
+
 
 var RainfallForm = React.createClass({
   getInitialState: function(){
@@ -11,79 +18,135 @@ var RainfallForm = React.createClass({
       month: "",
       day: "",
       year: "",
-      inches: ""
+      inches: "",
+      hours: []
     }
   },
-  handleFormNavigation: function(id){
+  componentFromCurrentStep: function(){
+    var boostrapSizeClasses = "col-xs-6 col-sm-3 col-md-2";
+    
     switch(this.state.currentStep){
-      //today or enter date
     case 1:
-      if(id === "yes"){
+      return <IntroStep handleNextStep={this.handleNextStep}
+                        bootstrapClassesSelectItem={boostrapSizeClasses}/>;
+    case 2:
+      return <MonthStep handleNextStep={this.handleNextStep}
+                        bootstrapClassesSelectItem={boostrapSizeClasses}/>;
+    case 3:
+      return <DayStep handleNextStep={this.handleNextStep}
+                      bootstrapClassesSelectItem={boostrapSizeClasses}
+                      month={this.state.month}/>;
+    case 4:
+      return <YearStep  handleNextStep={this.handleNextStep}
+                        bootstrapClassesSelectItem={boostrapSizeClasses}/>;
+    case 5:
+      return <HourStep  handleNextStep={this.handleNextStep}/>;
+    case 6:
+      return <InchesStep  handleNextStep={this.handleNextStep}
+                          bootstrapClassesSelectItem={boostrapSizeClasses}/>;
+    case 7:
+      return <InfoReviewStep  handleNextStep={this.handleNextStep}
+                              bootstrapClassesSelectItem={boostrapSizeClasses}
+                              month={this.state.month}
+                              day={this.state.day}
+                              year={this.state.year}
+                              inches={this.state.inches}
+                              hours={this.state.hours}/>;
+    }
+  },
+  handleNextStep: function(e){
+    var that = this;
+    var selectionTimeBeforeNavigate = 350;
+    
+    //make selected elemented appear selected briefly
+    if(e.target){
+      var className = e.target.className;
+      e.target.className = className + " selected";
+    }
+    
+    switch(this.state.currentStep){
+    case 1:
+      if(e.target.id === "yes"){
         var date = new Date();
-        var month =  date.getMonth() + 1;
-        var day = date.getDay() + 1;
-        var year = date.getYear();
-        this.setState({ currentStep: 5, month: month, day: day, year: year});
-      }else if(id === "no"){
-        this.setState({currentStep: 2});
+        setTimeout(function(){
+          that.setState({ currentStep: 5,
+                          month: date.getMonth() + 1,
+                          day: date.getDate(),
+                          year: date.getYear() + 1900});
+        }, selectionTimeBeforeNavigate);
+        
+      }else{
+        setTimeout(function(){
+          that.setState({ currentStep: 2});
+        }, selectionTimeBeforeNavigate);
       }
       break;
     case 2:
-      this.setState({month: id, currentStep: 3});
+      var month = e.target.id || e.target.parentElement.id;
+      setTimeout(function(){
+        that.setState({ currentStep: 3, month: parseInt(month)});
+      }, selectionTimeBeforeNavigate);
       break;
     case 3:
-      this.setState({day: id, currentStep: 4});
+      var day = e.target.id || e.target.parentElement.id;
+      setTimeout(function(){
+        that.setState({ currentStep: 4, day: parseInt(day)});
+      }, selectionTimeBeforeNavigate);
       break;
     case 4:
-      this.setState({year: id, currentStep: 5});
+      var year = e.target.id || e.target.parentElement.id;
+      setTimeout(function(){
+        that.setState({ currentStep: 5, year: parseInt(year)});
+      }, selectionTimeBeforeNavigate);
       break;
     case 5:
-      this.setState({inches: id, currentStep: 6});
+      setTimeout(function(){
+        that.setState({ currentStep: 6, hours: e });
+      }, selectionTimeBeforeNavigate);
       break;
     case 6:
-      if(id === "yes"){
-        ClientActions.createRain({
-          month: this.state.month,
-          day: this.state.day,
-          year: this.state.year,
-          inches: this.state.inches
-        });
-      }else if(id === "no"){
-        this.setState({
-          currentStep: 1,
-          month: "",
-          day: "",
-          year: "",
-          inches: ""
-        })
+      var floatInches = parseFloat(e);
+      setTimeout(function(){
+        that.setState({ currentStep: 7, inches: floatInches});
+      }, selectionTimeBeforeNavigate);
+      break;
+    case 7:
+      if(e.target.id === "yes"){
+        setTimeout(function(){
+          ClientActions.createRain(
+            {
+              month: that.state.month,
+              day: that.state.day,
+              year: that.state.year,
+              inches: that.state.inches,
+              hours: that.state.hours
+            },
+            that.navigateToIndex
+          );
+        }, selectionTimeBeforeNavigate);
+      } else if(e.target.id === "no"){
+        setTimeout(function(){
+          that.setState({ currentStep: 1,
+                          month: "",
+                          day: "",
+                          year: "",
+                          inches: "",
+                          hours: []});
+        }, selectionTimeBeforeNavigate);
       }
+      
       break;
     }
   },
+  navigateToIndex: function(){
+    console.log("navigateToIndex function in form.jsx");
+    HashHistory.push("/");
+  },
   render: function(){
-    var currentStepInfo = StepData[this.state.currentStep];
-    //when on final step of proces, pass info to display
-    //if adding more steps to the form (hours of storm) need to change review state
-    var reviewState = (this.state.currentStep === 6) ?  true : false;
-    var rainfallStep;
-    if(reviewState){
-      var infoObj = { month: this.state.month,
-                      day: this.state.day,
-                      year: this.state.year,
-                      inches: this.state.inches };
-      rainfallStep = <RainfallStep  handleFormNavigation={this.handleFormNavigation} 
-                                    stepInfo={currentStepInfo}
-                                    rainfallInfo={infoObj}
-                                    requiredFieldCount={currentStepInfo.length}/>;
-    } else {
-      rainfallStep = <RainfallStep  handleFormNavigation={this.handleFormNavigation} 
-                                    stepInfo={currentStepInfo}
-                                    requiredFieldCount={currentStepInfo.length}/>;
-    }
-    return(
+    var currentStepComponent = this.componentFromCurrentStep();
+    return (
       <div>
-        <h3>Rainfall Form</h3>
-        {rainfallStep}
+        {currentStepComponent}
       </div>
     )
   }

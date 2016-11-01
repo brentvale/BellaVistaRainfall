@@ -11,6 +11,7 @@ var resetRainfalls = function(obj){
 };
 var addRainfall = function(rainfall){
   debugger
+  return _rains[rainfall.year].push(rainfall);
 };
 
 RainfallStore.all = function(){
