@@ -1,19 +1,6 @@
 var React = require('react');
 
-var MONTH_NUMBER_TO_WORD = {
-  1: "January",
-  2: "February",
-  3: "March",
-  4: "April",
-  5: "May",
-  6: "June",
-  7: "July",
-  8: "August",
-  9: "September",
-  10: "October",
-  11: "November",
-  12: "December"
-};
+var MONTH_NUMBER_TO_WORD = require('../../../constants/conversion.js').monthNumToName;
 
 var InfoReviewStep = React.createClass({
   numberToMonthName: function(){

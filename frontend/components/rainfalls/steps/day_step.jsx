@@ -1,19 +1,6 @@
 var React = require('react');
 
-var MONTH_TO_NUMBER_OF_DAYS = {
-  1: 31,
-  2: 28,
-  3: 31,
-  4: 30,
-  5: 31,
-  6: 30,
-  7: 31,
-  8: 31,
-  9: 30,
-  10: 31,
-  11: 30,
-  12: 31
-};
+var MONTH_TO_NUMBER_OF_DAYS = require('../../../constants/conversion.js').monthNumToNumOfDays;
 
 var DayStep = React.createClass({
   numberOfDaysInMonth: function(month){

@@ -16,6 +16,9 @@
 h3{
   margin:20px;
 }
+h6{
+  text-align:center;
+}
 #container {
   margin-top:80px;
 }
@@ -38,6 +41,39 @@ h3{
   color: green;
   font-weight:bold;
 }
+.calendar-day{
+  border:1px solid white; 
+  display: inline-block;
+  height: 10px; 
+  max-width:15px;
+  width: 14%;
+}
+.calendar-day.filled{
+  background-color: #eeeeee;
+}
+.calendar-day-head{
+  display: inline-block;
+  font-size: 0.7em;
+  height: 10px; 
+  max-width:15px;
+  text-align:center;
+  width: 14%;
+}
+.calendar-row{
+  margin: 10px 0px 10px 0px;
+}
+.calendar-week{
+  height:10px;
+  text-align:left;
+  max-width: 100px;
+  width:100%;
+}
+.center-block{
+  left:0;
+  right:0;
+  margin-left: auto;
+  margin-right: auto;
+}
 .hour-display{
   font-size:1.2em;
   margin: 0px 10px 0px 10px;
@@ -53,29 +89,6 @@ h3{
 .wide-width{
   padding:25px;
   width: 150px;
-}
-.calendar-day{
-  background-color: #eeeeee;
-  border:1px solid white; 
-  display: inline-block;
-  height: 10px; 
-  max-width:15px;
-  width: 14%;
-}
-.calendar-day-head{
-  display: inline-block;
-  font-size: 0.7em;
-  height: 10px; 
-  max-width:15px;
-  text-align:center;
-  width: 14%;
-}
-.calendar-row{
-  margin: 10px 0px 10px 0px;
-}
-.calendar-week{
-  height:10px;
-  width:100%;
 }
 
 /*

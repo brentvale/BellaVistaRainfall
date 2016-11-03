@@ -9,11 +9,11 @@ var SeasonShow = React.createClass({
     var chartValues = this.props.rains.map(function(rainValue){
       return { date: rainValue['year'] + "-" + rainValue['month'] + "-" + rainValue['day']};
     });
-
+    
     return (
       <div>
-        <h1>{this.props.year}-{parseInt(this.props.year) + 1}</h1>
-        <CalendarHeatmap values={chartValues} />
+        <h1>{parseInt(this.props.year) - 1}-{parseInt(this.props.year)}</h1>
+        <CalendarHeatmap year={this.props.year} values={chartValues} />
       </div>
     )
   }

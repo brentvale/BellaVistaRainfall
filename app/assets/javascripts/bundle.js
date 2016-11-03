@@ -26408,19 +26408,49 @@
 	var RainfallConstants = __webpack_require__(245);
 	var RainfallStore = new Store(AppDispatcher);
 	
-	var _rains = {};
+	var _rains = {},
+	    _rainDayLookup = {};
+	
+	var createRaindayLookup = function (hash) {
+	  var raindayHash = {};
+	
+	  for (var year in hash) {
+	    for (var i = 0; i < hash[year].length; i++) {
+	      raindayHash[year + "-" + hash[year][i].month + "-" + hash[year][i].day] = hash[year][i].amount_in_inches;
+	    }
+	  }
+	
+	  return raindayHash;
+	};
 	
 	var resetRainfalls = function (obj) {
 	  _rains = obj;
+	  _rainDayLookup = createRaindayLookup(obj);
 	  return _rains;
 	};
 	var addRainfall = function (rainfall) {
-	  debugger;
-	  return _rains[rainfall.year].push(rainfall);
+	  if (parseInt(rainfall.month) < 7) {
+	    return _rains[rainfall.year].push(rainfall);
+	  } else {
+	    return _rains[rainfall.year + 1].push(rainfall);
+	  }
 	};
 	
 	RainfallStore.all = function () {
 	  return _rains;
+	};
+	
+	RainfallStore.returnMonthsFromYear = function (year) {
+	  var monthsHash = { 7: [], 8: [], 9: [], 10: [], 11: [], 12: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+	  var allRainsInYear = _rains[year];
+	  for (var i = 0; i < allRainsInYear.length; i++) {
+	    monthsHash[allRainsInYear[i].month] = allRainsInYear[i];
+	  }
+	  return monthsHash;
+	};
+	RainfallStore.returnDaysRainFromDate = function (date) {
+	  //format of date should be '2009-1-1'
+	  return _rainDayLookup[date] || false;
 	};
 	
 	RainfallStore.__onDispatch = function (payload) {
@@ -28145,11 +28175,11 @@
 	      React.createElement(
 	        'h1',
 	        null,
-	        this.props.year,
+	        parseInt(this.props.year) - 1,
 	        '-',
-	        parseInt(this.props.year) + 1
+	        parseInt(this.props.year)
 	      ),
-	      React.createElement(CalendarHeatmap, { values: chartValues })
+	      React.createElement(CalendarHeatmap, { year: this.props.year, values: chartValues })
 	    );
 	  }
 	});
@@ -47235,23 +47265,10 @@
 
 	var React = __webpack_require__(1);
 	
-	var MONTH_TO_NUMBER_OF_DAYS = {
-	  1: 31,
-	  2: 28,
-	  3: 31,
-	  4: 30,
-	  5: 31,
-	  6: 30,
-	  7: 31,
-	  8: 31,
-	  9: 30,
-	  10: 31,
-	  11: 30,
-	  12: 31
-	};
+	var MONTH_TO_NUMBER_OF_DAYS = __webpack_require__(514).monthNumToNumOfDays;
 	
 	var DayStep = React.createClass({
-	  displayName: "DayStep",
+	  displayName: 'DayStep',
 	
 	  numberOfDaysInMonth: function (month) {
 	    return MONTH_TO_NUMBER_OF_DAYS[month];
@@ -47266,18 +47283,18 @@
 	    var bootstrapClasses = "col-xs-3 col-sm-2 col-md-1";
 	
 	    return React.createElement(
-	      "div",
-	      { className: "col-xs-12" },
+	      'div',
+	      { className: 'col-xs-12' },
 	      daysArray.map(function (dayNum, idx) {
 	        return React.createElement(
-	          "div",
+	          'div',
 	          { key: idx,
 	            className: bootstrapClasses,
 	            onClick: that.props.handleNextStep,
 	            id: dayNum },
 	          React.createElement(
-	            "div",
-	            { className: "box-with-shadow center-block sm-width" },
+	            'div',
+	            { className: 'box-with-shadow center-block sm-width' },
 	            dayNum
 	          )
 	        );
@@ -47599,23 +47616,10 @@
 
 	var React = __webpack_require__(1);
 	
-	var MONTH_NUMBER_TO_WORD = {
-	  1: "January",
-	  2: "February",
-	  3: "March",
-	  4: "April",
-	  5: "May",
-	  6: "June",
-	  7: "July",
-	  8: "August",
-	  9: "September",
-	  10: "October",
-	  11: "November",
-	  12: "December"
-	};
+	var MONTH_NUMBER_TO_WORD = __webpack_require__(514).monthNumToName;
 	
 	var InfoReviewStep = React.createClass({
-	  displayName: "InfoReviewStep",
+	  displayName: 'InfoReviewStep',
 	
 	  numberToMonthName: function () {
 	    return MONTH_NUMBER_TO_WORD[this.props.month];
@@ -47623,60 +47627,60 @@
 	  render: function () {
 	    var monthDisplay = this.numberToMonthName();
 	    return React.createElement(
-	      "div",
+	      'div',
 	      null,
 	      React.createElement(
-	        "h4",
+	        'h4',
 	        null,
 	        monthDisplay,
-	        " ",
+	        ' ',
 	        this.props.day,
-	        ", ",
+	        ', ',
 	        this.props.year
 	      ),
 	      this.props.hours.map(function (hour, idx) {
 	        return React.createElement(
-	          "span",
-	          { className: "hour-display", key: idx },
+	          'span',
+	          { className: 'hour-display', key: idx },
 	          hour
 	        );
 	      }),
-	      React.createElement("br", null),
+	      React.createElement('br', null),
 	      React.createElement(
-	        "span",
-	        { className: "hour-display" },
-	        "Inches:"
+	        'span',
+	        { className: 'hour-display' },
+	        'Inches:'
 	      ),
-	      " ",
+	      ' ',
 	      React.createElement(
-	        "span",
+	        'span',
 	        null,
 	        this.props.inches
 	      ),
 	      React.createElement(
-	        "div",
-	        { className: "col-xs-12" },
+	        'div',
+	        { className: 'col-xs-12' },
 	        React.createElement(
-	          "h3",
+	          'h3',
 	          null,
-	          "Is Everything Correct?"
+	          'Is Everything Correct?'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "col-xs-6" },
+	          'div',
+	          { className: 'col-xs-6' },
 	          React.createElement(
-	            "div",
-	            { className: "box-with-shadow center-block wide-width", id: "no", onClick: this.props.handleNextStep },
-	            "No"
+	            'div',
+	            { className: 'box-with-shadow center-block wide-width', id: 'no', onClick: this.props.handleNextStep },
+	            'No'
 	          )
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "col-xs-6" },
+	          'div',
+	          { className: 'col-xs-6' },
 	          React.createElement(
-	            "div",
-	            { className: "box-with-shadow center-block wide-width", id: "yes", onClick: this.props.handleNextStep },
-	            "Yes"
+	            'div',
+	            { className: 'box-with-shadow center-block wide-width', id: 'yes', onClick: this.props.handleNextStep },
+	            'Yes'
 	          )
 	        )
 	      )
@@ -47693,6 +47697,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var MONTH_NUMBER_TO_WORD = __webpack_require__(514).monthNumToName;
 	
 	var CalendarHeatmapMonth = __webpack_require__(513).CalendarHeatmapMonth;
 	
@@ -47700,85 +47705,55 @@
 	  displayName: 'CalendarHeatmap',
 	
 	  render: function () {
+	    var that = this;
+	    var months = [[7, 8, 9], [10, 11, 12], [1, 2, 3], [4, 5, 6]];
+	    var colors = ["#e2e2ff", "#b9b9ff", "#8181f2", "#4d4dce", "#0d0d7a"];
+	
 	    return React.createElement(
 	      'div',
 	      { className: 'col-xs-12' },
-	      React.createElement(
-	        'div',
-	        { className: 'col-xs-12 col-sm-6 col-lg-3 calendar-row', style: { padding: "0px" } },
-	        React.createElement(
+	      months.map(function (monthBlock, idx) {
+	        return React.createElement(
 	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        )
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'col-xs-12 col-sm-6 col-lg-3 calendar-row', style: { padding: "0px" } },
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        )
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'col-xs-12 col-sm-6 col-lg-3 calendar-row', style: { padding: "0px" } },
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        )
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'col-xs-12 col-sm-6 col-lg-3 calendar-row', style: { padding: "0px" } },
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'col-xs-4', style: { padding: "0px" } },
-	          React.createElement(CalendarHeatmapMonth, null)
-	        )
-	      )
+	          { key: idx, className: 'col-xs-12 col-sm-6 col-lg-3 calendar-row', style: { padding: "0px" } },
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-4', style: { padding: "0px", textAlign: "center" } },
+	            React.createElement(
+	              'h6',
+	              { style: { margin: "0px" } },
+	              MONTH_NUMBER_TO_WORD[monthBlock[0]]
+	            ),
+	            React.createElement(CalendarHeatmapMonth, { year: that.props.year,
+	              monthNumber: monthBlock[0],
+	              colors: colors })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-4', style: { padding: "0px", textAlign: "center" } },
+	            React.createElement(
+	              'h6',
+	              { style: { margin: "0px" } },
+	              MONTH_NUMBER_TO_WORD[monthBlock[1]]
+	            ),
+	            React.createElement(CalendarHeatmapMonth, { year: that.props.year,
+	              monthNumber: monthBlock[1],
+	              colors: colors })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-4', style: { padding: "0px", textAlign: "center" } },
+	            React.createElement(
+	              'h6',
+	              { style: { margin: "0px" } },
+	              MONTH_NUMBER_TO_WORD[monthBlock[2]]
+	            ),
+	            React.createElement(CalendarHeatmapMonth, { year: that.props.year,
+	              monthNumber: monthBlock[2],
+	              colors: colors })
+	          )
+	        );
+	      })
 	    );
 	  }
 	});
@@ -47793,124 +47768,195 @@
 
 	var React = __webpack_require__(1);
 	
+	var CalendarHeatmapDay = __webpack_require__(516).CalendarHeatmapDay;
+	var MONTH_NUM_TO_NUMBER_OF_DAYS = __webpack_require__(514).monthNumToNumOfDays;
+	
 	var CalendarHeatmapMonth = React.createClass({
-	  displayName: "CalendarHeatmapMonth",
+	  displayName: 'CalendarHeatmapMonth',
 	
 	  render: function () {
+	    var that = this;
+	    var firstDateOfMonth = new Date(this.props.year + "-" + this.props.monthNumber + "-" + "1");
+	    var firstDay = firstDateOfMonth.getDay();
+	
+	    var spaceFillerDays = [];
+	    for (var i = 0; i < firstDay; i++) {
+	      spaceFillerDays.push(i);
+	    }
+	    var firstWeekDays = [];
+	    for (var i = 0; i < 7 - firstDay; i++) {
+	      firstWeekDays.push(i);
+	    }
+	
+	    var firstWeek = React.createElement(
+	      'div',
+	      { className: 'calendar-week center-block' },
+	      spaceFillerDays.map(function (fillerDay, idx) {
+	        return React.createElement('div', { className: 'calendar-day', key: idx });
+	      }),
+	      firstWeekDays.map(function (dayNum, jdx) {
+	        return React.createElement(CalendarHeatmapDay, { key: jdx,
+	          date: dayNum,
+	          month: that.props.monthNumber,
+	          year: that.props.year,
+	          colors: that.props.colors });
+	      })
+	    );
+	
+	    var restOfMonthDays = [];
+	    var count = 1;
+	    var week = [];
+	    for (var i = 7 - firstDay; i < MONTH_NUM_TO_NUMBER_OF_DAYS[this.props.monthNumber]; i++) {
+	      week.push(i);
+	      if (count % 7 == 0) {
+	        restOfMonthDays.push(week);
+	        week = [];
+	      }
+	      count += 1;
+	    }
+	    restOfMonthDays.push(week);
+	
 	    return React.createElement(
-	      "div",
-	      { style: { textAlign: "center" } },
+	      'div',
+	      { className: 'center-block', style: { textAlign: "center" } },
 	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
+	        'div',
+	        { className: 'calendar-week center-block' },
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "S"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'S'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "M"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'M'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "T"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'T'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "W"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'W'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "Th"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'Th'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "F"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'F'
 	        ),
 	        React.createElement(
-	          "div",
-	          { className: "calendar-day-head" },
-	          "S"
+	          'div',
+	          { className: 'calendar-day-head' },
+	          'S'
 	        )
 	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "calendar-week" },
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" }),
-	        React.createElement("div", { className: "calendar-day" })
-	      )
+	      firstWeek,
+	      restOfMonthDays.map(function (week, idx) {
+	        return React.createElement(
+	          'div',
+	          { key: idx, className: 'calendar-week center-block' },
+	          week.map(function (dayNum, jdx) {
+	            return React.createElement(CalendarHeatmapDay, { key: jdx,
+	              date: dayNum,
+	              month: that.props.monthNumber,
+	              year: that.props.year,
+	              colors: that.props.colors });
+	          })
+	        );
+	      })
 	    );
 	  }
 	});
 	
 	module.exports = {
 	  CalendarHeatmapMonth: CalendarHeatmapMonth
+	};
+
+/***/ },
+/* 514 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  monthNumToName: {
+	    1: "January",
+	    2: "February",
+	    3: "March",
+	    4: "April",
+	    5: "May",
+	    6: "June",
+	    7: "July",
+	    8: "August",
+	    9: "September",
+	    10: "October",
+	    11: "November",
+	    12: "December"
+	  },
+	  monthNumToNumOfDays: {
+	    1: 31,
+	    2: 28,
+	    3: 31,
+	    4: 30,
+	    5: 31,
+	    6: 30,
+	    7: 31,
+	    8: 31,
+	    9: 30,
+	    10: 31,
+	    11: 30,
+	    12: 31
+	  }
+	};
+
+/***/ },
+/* 515 */,
+/* 516 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var RainfallStore = __webpack_require__(228);
+	
+	var CalendarHeatmapDay = React.createClass({
+	  displayName: 'CalendarHeatmapDay',
+	
+	  render: function () {
+	    var inchesOnDay = RainfallStore.returnDaysRainFromDate(this.props.year + "-" + this.props.month + "-" + this.props.date);
+	
+	    var colorOfTile;
+	    if (inchesOnDay) {
+	      switch (true) {
+	        case inchesOnDay < 1:
+	          colorOfTile = this.props.colors[0];
+	          break;
+	        case inchesOnDay < 2:
+	          colorOfTile = this.props.colors[1];
+	          break;
+	        case inchesOnDay < 3:
+	          colorOfTile = this.props.colors[2];
+	          break;
+	        case inchesOnDay < 4:
+	          colorOfTile = this.props.colors[3];
+	          break;
+	        case inchesOnDay >= 4:
+	          colorOfTile = this.props.colors[4];
+	          break;
+	      }
+	    }
+	
+	    return React.createElement('div', { className: 'calendar-day filled', style: { backgroundColor: colorOfTile } });
+	  }
+	});
+	
+	module.exports = {
+	  CalendarHeatmapDay: CalendarHeatmapDay
 	};
 
 /***/ }
