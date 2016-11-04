@@ -45,7 +45,7 @@ var CalendarHeatmapMonth = React.createClass({
     restOfMonthDays.push(week);
     
     return(
-      <div className="center-block" style={{textAlign:"center", height: "200px"}}>
+      <div className="center-block" style={{textAlign:"center"}}>
         <div className="calendar-week center-block">
           <div className="calendar-day-head">S</div>
           <div className="calendar-day-head">M</div>

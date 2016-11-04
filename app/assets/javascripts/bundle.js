@@ -47818,7 +47818,7 @@
 	
 	    return React.createElement(
 	      'div',
-	      { className: 'center-block', style: { textAlign: "center", height: "200px" } },
+	      { className: 'center-block', style: { textAlign: "center" } },
 	      React.createElement(
 	        'div',
 	        { className: 'calendar-week center-block' },
