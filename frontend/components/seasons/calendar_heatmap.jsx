@@ -4,7 +4,9 @@ var MONTH_NUMBER_TO_WORD = require('../../constants/conversion.js').monthNumToNa
 var CalendarHeatmapMonth = require('./calendar_heatmap_month.jsx').CalendarHeatmapMonth;
 
 var CalendarHeatmap = React.createClass({
+  
   render: function(){
+    
     var that = this;
     var months = [[7,8,9], [10,11,12], [1,2,3], [4,5,6]];
     var colors = ["#e2e2ff", "#b9b9ff", "#8181f2", "#4d4dce","#0d0d7a"];

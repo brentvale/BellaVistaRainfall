@@ -1,10 +1,26 @@
 var React = require('react');
+var RainfallStore = require('../../stores/rainfall.js');
 
 var CalendarHeatmapDay = require('./calendar_heatmap_day.jsx').CalendarHeatmapDay;
 var MONTH_NUM_TO_NUMBER_OF_DAYS = require('../../constants/conversion.js').monthNumToNumOfDays;
 
 var CalendarHeatmapMonth = React.createClass({
+  getInitialState: function(){
+    return(
+      {rainData: RainfallStore.returnMonthsFromYear(this.props.year)}
+    )
+  },
+  componentDidMount: function(){
+    this.rainfallListener = RainfallStore.addListener(this._onChange);
+  },
+  componentWillUnmount: function(){
+    this.rainfallListener.remove();
+  },
+  _onChange: function(){
+    this.setState({rainData: RainfallStore.returnMonthsFromYear(this.props.year)});
+  },
   render: function(){
+
     var that = this;
   
     var firstDateOfMonth = new Date(this.props.year, (this.props.monthNumber-1), 1);
@@ -28,7 +44,8 @@ var CalendarHeatmapMonth = React.createClass({
                                                     date={dayNum}
                                                     month={that.props.monthNumber}
                                                     year={that.props.year}
-                                                    colors={that.props.colors}/>;
+                                                    colors={that.props.colors}
+                                                    rain={that.state.rainData[that.props.monthNumber][dayNum]}/>;
                       })}
                       </div>;
                       
@@ -65,7 +82,8 @@ var CalendarHeatmapMonth = React.createClass({
                                                   date={dayNum}
                                                   month={that.props.monthNumber}
                                                   year={that.props.year}
-                                                  colors={that.props.colors}/>
+                                                  colors={that.props.colors}
+                                                  rain={that.state.rainData[that.props.monthNumber][dayNum]}/>
                     })}
                   </div>
         })}

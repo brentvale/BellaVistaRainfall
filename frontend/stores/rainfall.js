@@ -4,7 +4,7 @@ var RainfallConstants = require('../constants/rainfallConstants.js');
 var RainfallStore = new Store(AppDispatcher);
 
 var _rains = {},
-_rainDayLookup = {};
+    _rainDayLookup = {};
 
 var createRaindayLookup = function(hash){
   var raindayHash = {};
@@ -24,14 +24,15 @@ var createRaindayLookup = function(hash){
 var resetRainfalls = function(obj){
   _rains = obj;
   _rainDayLookup = createRaindayLookup(obj);
-  return _rains;
 };
+
 var addRainfall = function(rainfall){
   if(parseInt(rainfall.month) < 7){
-    return _rains[rainfall.year-1].push(rainfall);
+    _rains[rainfall.year-1].push(rainfall);
   } else {
-    return _rains[rainfall.year].push(rainfall);
+    _rains[rainfall.year].push(rainfall);
   }
+  return _rains;
 };
 
 RainfallStore.all = function(){
@@ -39,11 +40,14 @@ RainfallStore.all = function(){
 };
 
 RainfallStore.returnMonthsFromYear = function(year){
-  var monthsHash = {7:[], 8:[], 9:[], 10:[], 11:[], 12:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[]};
+  var monthsHash = {7:{}, 8:{}, 9:{}, 10:{}, 11:{}, 12:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}};
   var allRainsInYear = _rains[year];
-  for(var i = 0; i < allRainsInYear.length; i++){
-    monthsHash[allRainsInYear[i].month] = allRainsInYear[i];
+  if(allRainsInYear){
+    for(var i = 0; i < allRainsInYear.length; i++){
+      monthsHash[allRainsInYear[i].month][allRainsInYear[i].day] = allRainsInYear[i];
+    }
   }
+  
   return monthsHash;
 };
 RainfallStore.returnDaysRainFromDate = function(date){

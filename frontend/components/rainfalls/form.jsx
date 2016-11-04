@@ -121,8 +121,8 @@ var RainfallForm = React.createClass({
               inches: that.state.inches,
               hours: that.state.hours
             },
-            that.navigateToIndex
           );
+          that.navigateToIndex();
         }, selectionTimeBeforeNavigate);
       } else if(e.target.id === "no"){
         setTimeout(function(){
@@ -140,7 +140,7 @@ var RainfallForm = React.createClass({
   },
   navigateToIndex: function(){
     console.log("navigateToIndex function in form.jsx");
-    HashHistory.push("/");
+    this.props.router.goBack();
   },
   render: function(){
     var currentStepComponent = this.componentFromCurrentStep();

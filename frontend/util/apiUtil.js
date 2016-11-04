@@ -28,10 +28,9 @@ module.exports = {
       },
       success: function(resp){
         ServerActions.receiveCreatedRainfall(resp.rainfall);
-        callback && callback();
       }, 
       error: function(resp){
-        console.log("errored out in the ajax request"); 
+        console.log("errored out in the ajax request of createRain"); 
       }
     });
   }

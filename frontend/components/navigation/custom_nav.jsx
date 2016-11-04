@@ -22,9 +22,9 @@ var CustomNav = React.createClass({
         <Navbar.Collapse>
           <Nav>
             <NavDropdown title="seasons" id="basic-nav-dropdown">
-                {this.props.seasons.map(function(season, idx){
+                {this.props.years.map(function(year, idx){
                   return <MenuItem key={idx}>
-                          {season}
+                  {year}-{year+1}
                          </MenuItem>
                 })}
             </NavDropdown>

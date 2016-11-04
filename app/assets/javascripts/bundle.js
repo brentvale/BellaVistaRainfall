@@ -26349,8 +26349,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var RainfallStore = __webpack_require__(228);
 	var ClientActions = __webpack_require__(246);
+	var RainfallStore = __webpack_require__(228);
 	
 	var SeasonIndex = __webpack_require__(249).SeasonIndex;
 	var CustomNav = __webpack_require__(506).CustomNav;
@@ -26359,37 +26359,34 @@
 	  displayName: 'App',
 	
 	  getInitialState: function () {
-	    return { rains: RainfallStore.all() };
+	    return { rainsFetched: false };
 	  },
 	  componentDidMount: function () {
-	    this.seasonListener = RainfallStore.addListener(this._onChange);
+	    this.rainsFetchedListener = RainfallStore.addListener(this._onChange);
 	    ClientActions.fetchAllRainData();
 	  },
 	  componentWillUnmount: function () {
-	    this.seasonListener.remove();
+	    this.rainsFetchedListener.remove();
 	  },
 	  _onChange: function () {
-	    this.setState({ rains: RainfallStore.all() });
+	    this.setState({ rainsFetched: true });
 	  },
 	  render: function () {
-	
-	    var allRains = [];
-	    for (var year in this.state.rains) {
-	      allRains.push({ year: year, rains: this.state.rains[year] });
+	    if (!this.state.rainsFetched) {
+	      return React.createElement('div', null);
 	    }
-	
-	    var seasons = ["2016-2017", "2015-2016", "2014-2015", "2013-2014", "2012-2013", "2011-2012", "2010-2011", "2009-2010"];
+	    var years = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016];
 	
 	    var childrenWithProps = React.Children.map(this.props.children, function (child) {
 	      return React.cloneElement(child, {
-	        allRains: allRains
+	        years: years
 	      });
 	    }.bind(this));
 	
 	    return React.createElement(
 	      'div',
 	      { id: 'container' },
-	      React.createElement(CustomNav, { seasons: seasons }),
+	      React.createElement(CustomNav, { years: years }),
 	      childrenWithProps
 	    );
 	  }
@@ -26429,14 +26426,15 @@
 	var resetRainfalls = function (obj) {
 	  _rains = obj;
 	  _rainDayLookup = createRaindayLookup(obj);
-	  return _rains;
 	};
+	
 	var addRainfall = function (rainfall) {
 	  if (parseInt(rainfall.month) < 7) {
-	    return _rains[rainfall.year - 1].push(rainfall);
+	    _rains[rainfall.year - 1].push(rainfall);
 	  } else {
-	    return _rains[rainfall.year].push(rainfall);
+	    _rains[rainfall.year].push(rainfall);
 	  }
+	  return _rains;
 	};
 	
 	RainfallStore.all = function () {
@@ -26444,11 +26442,14 @@
 	};
 	
 	RainfallStore.returnMonthsFromYear = function (year) {
-	  var monthsHash = { 7: [], 8: [], 9: [], 10: [], 11: [], 12: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+	  var monthsHash = { 7: {}, 8: {}, 9: {}, 10: {}, 11: {}, 12: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
 	  var allRainsInYear = _rains[year];
-	  for (var i = 0; i < allRainsInYear.length; i++) {
-	    monthsHash[allRainsInYear[i].month] = allRainsInYear[i];
+	  if (allRainsInYear) {
+	    for (var i = 0; i < allRainsInYear.length; i++) {
+	      monthsHash[allRainsInYear[i].month][allRainsInYear[i].day] = allRainsInYear[i];
+	    }
 	  }
+	
 	  return monthsHash;
 	};
 	RainfallStore.returnDaysRainFromDate = function (date) {
@@ -28043,7 +28044,7 @@
 /* 245 */
 /***/ function(module, exports) {
 
-	RainfallConstants = {
+	module.exports = {
 	  RAINFALLS_RECEIVED: "RAINFALLS_RECEIVED",
 	  RAINFALL_RECEIVED: "RAINFALL_RECEIVED"
 	};
@@ -28097,10 +28098,9 @@
 	      },
 	      success: function (resp) {
 	        ServerActions.receiveCreatedRainfall(resp.rainfall);
-	        callback && callback();
 	      },
 	      error: function (resp) {
-	        console.log("errored out in the ajax request");
+	        console.log("errored out in the ajax request of createRain");
 	      }
 	    });
 	  }
@@ -28144,8 +28144,8 @@
 	    return React.createElement(
 	      'div',
 	      null,
-	      this.props.allRains.map(function (rainObj, idx) {
-	        return React.createElement(SeasonShow, { key: idx, rains: rainObj.rains, year: rainObj.year });
+	      this.props.years.map(function (year, idx) {
+	        return React.createElement(SeasonShow, { key: idx, year: year });
 	      })
 	    );
 	  }
@@ -28222,7 +28222,9 @@
 	var CalendarHeatmap = React.createClass({
 	  displayName: 'CalendarHeatmap',
 	
+	
 	  render: function () {
+	
 	    var that = this;
 	    var months = [[7, 8, 9], [10, 11, 12], [1, 2, 3], [4, 5, 6]];
 	    var colors = ["#e2e2ff", "#b9b9ff", "#8181f2", "#4d4dce", "#0d0d7a"];
@@ -28320,6 +28322,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var RainfallStore = __webpack_require__(228);
 	
 	var CalendarHeatmapDay = __webpack_require__(255).CalendarHeatmapDay;
 	var MONTH_NUM_TO_NUMBER_OF_DAYS = __webpack_require__(253).monthNumToNumOfDays;
@@ -28327,7 +28330,20 @@
 	var CalendarHeatmapMonth = React.createClass({
 	  displayName: 'CalendarHeatmapMonth',
 	
+	  getInitialState: function () {
+	    return { rainData: RainfallStore.returnMonthsFromYear(this.props.year) };
+	  },
+	  componentDidMount: function () {
+	    this.rainfallListener = RainfallStore.addListener(this._onChange);
+	  },
+	  componentWillUnmount: function () {
+	    this.rainfallListener.remove();
+	  },
+	  _onChange: function () {
+	    this.setState({ rainData: RainfallStore.returnMonthsFromYear(this.props.year) });
+	  },
 	  render: function () {
+	
 	    var that = this;
 	
 	    var firstDateOfMonth = new Date(this.props.year, this.props.monthNumber - 1, 1);
@@ -28353,7 +28369,8 @@
 	          date: dayNum,
 	          month: that.props.monthNumber,
 	          year: that.props.year,
-	          colors: that.props.colors });
+	          colors: that.props.colors,
+	          rain: that.state.rainData[that.props.monthNumber][dayNum] });
 	      })
 	    );
 	
@@ -28422,7 +28439,8 @@
 	              date: dayNum,
 	              month: that.props.monthNumber,
 	              year: that.props.year,
-	              colors: that.props.colors });
+	              colors: that.props.colors,
+	              rain: that.state.rainData[that.props.monthNumber][dayNum] });
 	          })
 	        );
 	      })
@@ -28439,6 +28457,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var ClientActions = __webpack_require__(246);
 	
 	var OverlayTrigger = __webpack_require__(256).OverlayTrigger;
 	var Tooltip = __webpack_require__(256).Tooltip;
@@ -28450,35 +28469,35 @@
 	var CalendarHeatmapDay = React.createClass({
 	  displayName: 'CalendarHeatmapDay',
 	
+	
 	  render: function () {
-	    var rainData = RainfallStore.returnDaysRainFromDate(this.props.year + "-" + this.props.month + "-" + this.props.date);
 	    var colorOfTile;
-	    if (rainData) {
+	    if (this.props.rain) {
 	      switch (true) {
-	        case rainData.amount_in_inches < 1:
+	        case this.props.rain.amount_in_inches < 1:
 	          colorOfTile = this.props.colors[0];
 	          break;
-	        case rainData.amount_in_inches < 2:
+	        case this.props.rain.amount_in_inches < 2:
 	          colorOfTile = this.props.colors[1];
 	          break;
-	        case rainData.amount_in_inches < 3:
+	        case this.props.rain.amount_in_inches < 3:
 	          colorOfTile = this.props.colors[2];
 	          break;
-	        case rainData.amount_in_inches < 4:
+	        case this.props.rain.amount_in_inches < 4:
 	          colorOfTile = this.props.colors[3];
 	          break;
-	        case rainData.amount_in_inches >= 4:
+	        case this.props.rain.amount_in_inches >= 4:
 	          colorOfTile = this.props.colors[4];
 	          break;
 	      }
 	    }
 	
 	    var tooltip;
-	    if (rainData) {
+	    if (this.props.rain) {
 	      tooltip = React.createElement(
 	        Tooltip,
 	        { id: 'tooltip' },
-	        this.props.year + "-" + this.props.month + "-" + this.props.date + " : " + rainData.amount_in_inches + " inches"
+	        this.props.year + "-" + this.props.month + "-" + this.props.date + " : " + this.props.rain.amount_in_inches + " inches"
 	      );
 	    } else {
 	      tooltip = React.createElement(
@@ -47175,11 +47194,13 @@
 	          React.createElement(
 	            NavDropdown,
 	            { title: 'seasons', id: 'basic-nav-dropdown' },
-	            this.props.seasons.map(function (season, idx) {
+	            this.props.years.map(function (year, idx) {
 	              return React.createElement(
 	                MenuItem,
 	                { key: idx },
-	                season
+	                year,
+	                '-',
+	                year + 1
 	              );
 	            })
 	          )
@@ -47327,7 +47348,8 @@
 	              year: that.state.year,
 	              inches: that.state.inches,
 	              hours: that.state.hours
-	            }, that.navigateToIndex);
+	            });
+	            that.navigateToIndex();
 	          }, selectionTimeBeforeNavigate);
 	        } else if (e.target.id === "no") {
 	          setTimeout(function () {
@@ -47345,7 +47367,7 @@
 	  },
 	  navigateToIndex: function () {
 	    console.log("navigateToIndex function in form.jsx");
-	    HashHistory.push("/");
+	    this.props.router.goBack();
 	  },
 	  render: function () {
 	    var currentStepComponent = this.componentFromCurrentStep();
