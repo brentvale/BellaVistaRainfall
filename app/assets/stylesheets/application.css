@@ -44,9 +44,8 @@ h6{
 .calendar-day{
   border:1px solid white; 
   display: inline-block;
-  height: 10px; 
-  max-width:15px;
-  width: 14%;
+  height: 15px; 
+  width: 15px;
 }
 .calendar-day.filled{
   background-color: #eeeeee;
@@ -54,18 +53,19 @@ h6{
 .calendar-day-head{
   display: inline-block;
   font-size: 0.7em;
-  height: 10px; 
-  max-width:15px;
+  height: 15px; 
   text-align:center;
-  width: 14%;
+  width:15px;
 }
 .calendar-row{
   margin: 10px 0px 10px 0px;
 }
 .calendar-week{
-  height:10px;
+  height:15px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  max-width: 110px;
   text-align:left;
-  max-width: 100px;
   width:100%;
 }
 .center-block{
