@@ -11,10 +11,13 @@ var createRaindayLookup = function(hash){
   
   for(var year in hash){
     for(var i = 0; i < hash[year].length; i++){
-      raindayHash[year + "-" + hash[year][i].month + "-" + hash[year][i].day] = hash[year][i].amount_in_inches;
+      if(hash[year][i].month < 7){
+        raindayHash[(parseInt(year)+1) + "-" + hash[year][i].month + "-" + hash[year][i].day] = hash[year][i];
+      } else {
+        raindayHash[year + "-" + hash[year][i].month + "-" + hash[year][i].day] = hash[year][i];
+      }
     }
   }
-  
   return raindayHash;
 };
 
@@ -25,9 +28,9 @@ var resetRainfalls = function(obj){
 };
 var addRainfall = function(rainfall){
   if(parseInt(rainfall.month) < 7){
-    return _rains[rainfall.year].push(rainfall);
+    return _rains[rainfall.year-1].push(rainfall);
   } else {
-    return _rains[rainfall.year+1].push(rainfall);
+    return _rains[rainfall.year].push(rainfall);
   }
 };
 

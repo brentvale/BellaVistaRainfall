@@ -6,7 +6,8 @@ var MONTH_NUM_TO_NUMBER_OF_DAYS = require('../../constants/conversion.js').month
 var CalendarHeatmapMonth = React.createClass({
   render: function(){
     var that = this;
-    var firstDateOfMonth = new Date(this.props.year + "-" + this.props.monthNumber + "-" + "1");
+  
+    var firstDateOfMonth = new Date(this.props.year, (this.props.monthNumber-1), 1);
     var firstDay = firstDateOfMonth.getDay();
     
     var spaceFillerDays = [];
@@ -14,7 +15,7 @@ var CalendarHeatmapMonth = React.createClass({
       spaceFillerDays.push(i);
     }
     var firstWeekDays = [];
-    for(var i = 0; i < (7-firstDay); i ++){
+    for(var i = 1; i < (7-firstDay+1); i ++){
       firstWeekDays.push(i);
     }
   
@@ -34,7 +35,7 @@ var CalendarHeatmapMonth = React.createClass({
     var restOfMonthDays = [];
     var count = 1;
     var week = [];
-    for(var i = (7-firstDay); i < MONTH_NUM_TO_NUMBER_OF_DAYS[this.props.monthNumber]; i++){
+    for(var i = (7-firstDay+1); i < (MONTH_NUM_TO_NUMBER_OF_DAYS[this.props.monthNumber] + 1); i++){
       week.push(i);
       if(count % 7 == 0){
         restOfMonthDays.push(week);

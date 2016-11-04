@@ -23,9 +23,9 @@ class Api::RainfallsController < ApplicationController
     rainfalls.each do |rain|
       #include january - june in previous year's rainfall
       if rain.month < 7
-        season = rain.year
+        season = rain.year-1
       else
-        season = rain.year+1 
+        season = rain.year
       end
       if hash[season].nil?
         hash[season] = []
