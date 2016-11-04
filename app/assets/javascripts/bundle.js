@@ -47265,7 +47265,7 @@
 	  },
 	  handleNextStep: function (e) {
 	    var that = this;
-	    var selectionTimeBeforeNavigate = 350;
+	    var selectionTimeBeforeNavigate = 150;
 	
 	    //make selected elemented appear selected briefly
 	    if (e.target) {
