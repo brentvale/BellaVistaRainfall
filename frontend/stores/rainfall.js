@@ -42,6 +42,7 @@ RainfallStore.all = function(){
 RainfallStore.returnMonthsFromYear = function(year){
   var monthsHash = {7:{}, 8:{}, 9:{}, 10:{}, 11:{}, 12:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}};
   var allRainsInYear = _rains[year];
+
   if(allRainsInYear){
     for(var i = 0; i < allRainsInYear.length; i++){
       monthsHash[allRainsInYear[i].month][allRainsInYear[i].day] = allRainsInYear[i];

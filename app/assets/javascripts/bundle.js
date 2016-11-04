@@ -26444,6 +26444,7 @@
 	RainfallStore.returnMonthsFromYear = function (year) {
 	  var monthsHash = { 7: {}, 8: {}, 9: {}, 10: {}, 11: {}, 12: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
 	  var allRainsInYear = _rains[year];
+	
 	  if (allRainsInYear) {
 	    for (var i = 0; i < allRainsInYear.length; i++) {
 	      monthsHash[allRainsInYear[i].month][allRainsInYear[i].day] = allRainsInYear[i];
@@ -28215,6 +28216,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var RainfallStore = __webpack_require__(228);
+	
 	var MONTH_NUMBER_TO_WORD = __webpack_require__(253).monthNumToName;
 	
 	var CalendarHeatmapMonth = __webpack_require__(254).CalendarHeatmapMonth;
@@ -28222,8 +28225,22 @@
 	var CalendarHeatmap = React.createClass({
 	  displayName: 'CalendarHeatmap',
 	
-	
+	  getInitialState: function () {
+	    return { rainData: RainfallStore.returnMonthsFromYear(this.props.year) };
+	  },
+	  componentDidMount: function () {
+	    this.rainfallListener = RainfallStore.addListener(this._onChange);
+	  },
+	  componentWillUnmount: function () {
+	    this.rainfallListener.remove();
+	  },
+	  _onChange: function () {
+	    this.setState({ rainData: RainfallStore.returnMonthsFromYear(this.props.year) });
+	  },
 	  render: function () {
+	    if (!this.state.rainData) {
+	      return React.createElement('div', null);
+	    }
 	
 	    var that = this;
 	    var months = [[7, 8, 9], [10, 11, 12], [1, 2, 3], [4, 5, 6]];
@@ -28246,7 +28263,8 @@
 	            ),
 	            React.createElement(CalendarHeatmapMonth, { year: monthBlock[0] < 7 ? that.props.year + 1 : that.props.year,
 	              monthNumber: monthBlock[0],
-	              colors: colors })
+	              colors: colors,
+	              rain: that.state.rainData[monthBlock[0]] })
 	          ),
 	          React.createElement(
 	            'div',
@@ -28258,7 +28276,8 @@
 	            ),
 	            React.createElement(CalendarHeatmapMonth, { year: monthBlock[1] < 7 ? that.props.year + 1 : that.props.year,
 	              monthNumber: monthBlock[1],
-	              colors: colors })
+	              colors: colors,
+	              rain: that.state.rainData[monthBlock[1]] })
 	          ),
 	          React.createElement(
 	            'div',
@@ -28270,7 +28289,8 @@
 	            ),
 	            React.createElement(CalendarHeatmapMonth, { year: monthBlock[2] < 7 ? that.props.year + 1 : that.props.year,
 	              monthNumber: monthBlock[2],
-	              colors: colors })
+	              colors: colors,
+	              rain: that.state.rainData[monthBlock[2]] })
 	          )
 	        );
 	      })
@@ -28330,20 +28350,8 @@
 	var CalendarHeatmapMonth = React.createClass({
 	  displayName: 'CalendarHeatmapMonth',
 	
-	  getInitialState: function () {
-	    return { rainData: RainfallStore.returnMonthsFromYear(this.props.year) };
-	  },
-	  componentDidMount: function () {
-	    this.rainfallListener = RainfallStore.addListener(this._onChange);
-	  },
-	  componentWillUnmount: function () {
-	    this.rainfallListener.remove();
-	  },
-	  _onChange: function () {
-	    this.setState({ rainData: RainfallStore.returnMonthsFromYear(this.props.year) });
-	  },
-	  render: function () {
 	
+	  render: function () {
 	    var that = this;
 	
 	    var firstDateOfMonth = new Date(this.props.year, this.props.monthNumber - 1, 1);
@@ -28370,7 +28378,7 @@
 	          month: that.props.monthNumber,
 	          year: that.props.year,
 	          colors: that.props.colors,
-	          rain: that.state.rainData[that.props.monthNumber][dayNum] });
+	          rain: that.props.rain[dayNum] });
 	      })
 	    );
 	
@@ -28440,7 +28448,7 @@
 	              month: that.props.monthNumber,
 	              year: that.props.year,
 	              colors: that.props.colors,
-	              rain: that.state.rainData[that.props.monthNumber][dayNum] });
+	              rain: that.props.rain[dayNum] });
 	          })
 	        );
 	      })
